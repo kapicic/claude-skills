@@ -41,7 +41,10 @@ ANCHOR="$HOME/.local/share/claude-cloud-anchor/$(basename "$(dirname "$REPO")")-
 if [ -z "$base" ]; then
   base="$(git -C "$REPO" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')" \
     || true
-  [ -n "$base" ] || die "origin/HEAD is not set; pass --base or run: git remote set-head origin --auto"
+  # origin/HEAD is unset in a repo that was pushed rather than cloned.
+  [ -n "$base" ] || base="$(cd "$REPO" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null)" \
+    || true
+  [ -n "$base" ] || die "can't tell the default branch; pass --base <branch>"
 fi
 
 git -C "$REPO" fetch -q origin "$base" || die "git fetch origin $base failed"
