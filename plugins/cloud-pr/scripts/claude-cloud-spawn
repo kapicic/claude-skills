@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# claude-cloud-spawn — start a plain claude.ai cloud session on the current
+# repo from anywhere, including a Claude Code Bash tool call, and print its link.
+#
+#   claude-cloud-spawn [--base <branch>] "<prompt>"
+#
+# Repo: the git checkout this runs in (any worktree of it), or $CLAUDE_CLOUD_REPO.
+# Base: --base, else $CLAUDE_CLOUD_BASE, else origin's default branch. The cloud
+#       session starts there; the prompt checks out whatever it needs.
+#
+# Why the moving parts:
+# - `claude --cloud` refuses a non-TTY caller, so it runs under `script`, which
+#   gives it a pseudo-terminal. It creates the session and exits in ~5s.
+# - The cloud sandbox seeds from the *local* checkout's branch or commit. The
+#   caller's checkout is usually an unpushed branch, which fails the clone
+#   ("requested branch or commit was not found"). So it runs from a fixed anchor:
+#   a sparse, detached worktree at origin/<base> with nothing checked out.
+# - The anchor lives outside ~/.claude (--cloud refuses a tree inside the config
+#   dir), one per repo, named <parent-dir>-<repo-dir>. Its folder trust is
+#   accepted once, interactively; a new path would re-prompt.
+# - Only one repo reaches the sandbox; --add-dir does not add a second source.
+
+set -euo pipefail
+
+die() { printf 'claude-cloud-spawn: %s\n' "$*" >&2; exit 1; }
+
+base="${CLAUDE_CLOUD_BASE:-}"
+if [ "${1:-}" = "--base" ]; then
+  [ -n "${2:-}" ] || die "--base needs a branch"
+  base="$2"; shift 2
+fi
+[ $# -ge 1 ] && [ -n "$1" ] || die 'usage: claude-cloud-spawn [--base <branch>] "<prompt>"'
+prompt="$1"
+
+# The main checkout, even when called from one of its worktrees.
+common="$(git -C "${CLAUDE_CLOUD_REPO:-.}" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" \
+  || die "not inside a git checkout; cd into the repo or set CLAUDE_CLOUD_REPO"
+REPO="$(dirname "$common")"
+ANCHOR="$HOME/.local/share/claude-cloud-anchor/$(basename "$(dirname "$REPO")")-$(basename "$REPO")"
+
+if [ -z "$base" ]; then
+  base="$(git -C "$REPO" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')" \
+    || true
+  [ -n "$base" ] || die "origin/HEAD is not set; pass --base or run: git remote set-head origin --auto"
+fi
+
+git -C "$REPO" fetch -q origin "$base" || die "git fetch origin $base failed"
+if [ ! -e "$ANCHOR/.git" ]; then
+  mkdir -p "$(dirname "$ANCHOR")"
+  git -C "$REPO" worktree add -q --no-checkout --detach "$ANCHOR" "origin/$base"
+  git -C "$ANCHOR" sparse-checkout set --no-cone '/AGENTS.md'
+fi
+# Worktrees share refs with the main checkout, so origin/<base> is already fresh.
+git -C "$ANCHOR" checkout -q --detach "origin/$base"
+
+out="$(mktemp -t claude-cloud-spawn.XXXXXX)"
+trap 'rm -f "$out"' EXIT
+# stdin </dev/null: nothing to answer. If the trust prompt appears the session
+# is not created and the output below says so.
+( cd "$ANCHOR" && script -q /dev/null claude --cloud "$prompt" </dev/null >"$out" 2>&1 ) &
+pid=$!
+for _ in $(seq 1 90); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
+kill "$pid" 2>/dev/null || true
+
+clean="$(perl -pe 's/\e\[[0-9;?<>]*[a-zA-Z~]//g; s/\e\][^\a]*\a//g; s/\e[()][A-Z0-9]//g; s/\r//g' "$out")"
+url="$(printf '%s\n' "$clean" | grep -Eo 'https://claude\.ai/code/session_[A-Za-z0-9]+' | head -1 || true)"
+if [ -z "$url" ]; then
+  printf '%s\n' "$clean" | grep -v '^[[:space:]]*$' | tail -15 >&2
+  die "no session link in claude --cloud output (see above); first run in a repo? accept folder trust once: cd \"$ANCHOR\" && claude"
+fi
+printf '%s\n' "$url"

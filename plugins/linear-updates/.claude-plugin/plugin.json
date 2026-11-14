@@ -1,0 +1,9 @@
+{
+  "name": "linear-updates",
+  "version": "0.1.0",
+  "description": "Laconic, goal-oriented Linear project updates, issues and comments, drafted for your approval before posting.",
+  "author": { "name": "Stevan Kapicic" },
+  "repository": "https://github.com/kapicic/claude-skills",
+  "license": "MIT",
+  "keywords": ["linear", "status-update", "writing"]
+}
