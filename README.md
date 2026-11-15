@@ -36,7 +36,7 @@ Plugins that depend on your tools ask which ones when you enable them. Every opt
 ## Requirements
 
 - `git-pr` and `cloud-pr` use the [GitHub CLI](https://cli.github.com) (`gh`), logged in.
-- `cloud-pr` also needs a `claude` CLI logged in to claude.ai with cloud sessions enabled. The first run in a repo asks you to accept folder trust once. `pr-review-cloud` also needs pr-review's claude.ai edition uploaded to claude.ai.
+- `cloud-pr` also needs a `claude` CLI logged in to claude.ai with cloud sessions enabled. The first run in a repo asks you to accept folder trust once. It runs sessions in the first cloud environment in its list, not the one picked in the web app, so pin yours with `/remote-env` or `remote.defaultEnvironmentId` in `~/.claude/settings.json`. `pr-review-cloud` also needs pr-review's claude.ai edition uploaded to claude.ai.
 - `tracker-updates` uses the Linear or Atlassian (Jira) connector or MCP server, or `gh` for GitHub Issues/Projects. GitHub project status updates need the `project` token scope: `gh auth refresh -s project`.
 
 Repo-specific details, such as the check command, the formatter and how migrations are named, come from the repo's own `AGENTS.md` or `CLAUDE.md`, not from these skills.

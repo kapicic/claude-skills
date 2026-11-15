@@ -85,5 +85,10 @@ round — otherwise the link is the answer.
 - "requested branch or commit was not found" in the run log → the anchor is not
   on a pushed commit; the script re-detaches it at `origin/<BASE>` each call,
   so check that `git fetch origin <BASE>` succeeded.
+- Session runs in the wrong environment (an org one, without your env vars or
+  network allowlist) → `claude --cloud` ignores the web app's environment
+  picker and, with nothing pinned, uses the first environment in its list. Ask
+  the user to pick theirs once with `/remote-env`, or set
+  `remote.defaultEnvironmentId` in `~/.claude/settings.json`, then retry.
 - Debug a spawned run: `RemoteTrigger` `get_run_log` with the `session_…` id
   from the link (works for plain sessions, not just routine runs).

@@ -1,6 +1,6 @@
 {
   "name": "cloud-pr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Start a claude.ai cloud session that fixes a PR's failing CI or reviews a PR, and get its link back.",
   "author": { "name": "Stevan Kapicic" },
   "repository": "https://github.com/kapicic/claude-skills",
