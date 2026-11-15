@@ -1,0 +1,18 @@
+{
+  "name": "tracker-updates",
+  "version": "0.2.0",
+  "description": "Laconic, goal-oriented project updates, issues and comments for Linear, Jira or GitHub Issues/Projects, drafted for your approval before posting.",
+  "author": { "name": "Stevan Kapicic" },
+  "repository": "https://github.com/kapicic/claude-skills",
+  "license": "MIT",
+  "keywords": ["linear", "jira", "github-issues", "status-update", "writing"],
+  "userConfig": {
+    "tracker": {
+      "type": "string",
+      "title": "Issue tracker",
+      "description": "Where updates and issues are posted. auto = detect from the pasted link, else the connected tracker MCP, else GitHub.",
+      "options": ["auto", "linear", "jira", "github"],
+      "default": "auto"
+    }
+  }
+}

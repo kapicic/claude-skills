@@ -1,15 +1,34 @@
 ---
-name: linear-updates
-description: This skill should be used when writing Linear project status updates, issue descriptions, or issue comments — anything posted into Linear. It enforces a laconic 3-5 bullet, goal-oriented house style, a draft-then-confirm flow, and the Linear MCP mechanics (which tool creates vs edits, health values, required fields). Triggers on "update this Linear project", "post a project update", "add an issue for that", a pasted linear.app URL, or "update Linear".
+name: tracker-updates
+description: This skill should be used when writing project status updates, issue descriptions, or issue comments in an issue tracker — Linear, Jira, or GitHub Issues/Projects. It enforces a laconic 3-5 bullet, goal-oriented house style, a draft-then-confirm flow, and each tracker's posting mechanics (which tool creates vs edits, health values, required fields). Triggers on "post a project update", "update this project", "add an issue for that", "update Linear", "update Jira", or a pasted linear.app, atlassian.net/browse, or github.com issue/project URL.
 ---
 
-# Linear Updates
+# Tracker Updates
 
 ## Purpose
 
-Produce Linear updates that a lead can read in fifteen seconds and know: what moved
+Produce tracker updates that a lead can read in fifteen seconds and know: what moved
 toward the goal, what is in the way, and whether the date still holds. Optimize for
 the reader who did not attend the standup.
+
+## Pick the tracker
+
+Tracker: `${user_config.tracker}`. If this is `auto`, or not one of `linear`, `jira`,
+`github` (it stays unsubstituted when the skill runs outside a plugin install),
+decide in this order:
+
+1. **A pasted URL wins:** `linear.app` → linear; `*.atlassian.net/browse/…` or
+   `/jira/…` → jira; `github.com/<owner>/<repo>/issues/…` or
+   `github.com/(orgs|users)/<owner>/projects/…` → github.
+2. **The configured value**, when it is one of the three.
+3. **The tracker MCP that is connected and signed in:** Linear tools
+   (`ToolSearch "+linear save_issue"`), or Atlassian tools beyond
+   `authenticate` (`ToolSearch "+atlassian jira"`). If both are, ask once which one
+   this project lives in.
+4. **GitHub** (`gh`), when no tracker MCP is connected.
+
+Then read `references/<tracker>.md` for the posting mechanics. Everything else in
+this file applies to every tracker.
 
 ## The format
 
@@ -47,9 +66,9 @@ Order by what the reader acts on, not chronologically.
 
 ## Workflow
 
-1. **Read the last update first** (`get_status_updates`, limit 3). The new update is
-   a delta on it — never repeat a bullet that already shipped, and carry forward an
-   unresolved blocker only if its state changed.
+1. **Read the last update first** (the last 3, with the tracker's mechanics). The new
+   update is a delta on it — never repeat a bullet that already shipped, and carry
+   forward an unresolved blocker only if its state changed.
 2. **Verify against ground truth, not conversation memory.** Check the PR state
    (`gh pr view <n> --json state,reviewDecision,title`), the merge, the release, the
    code. A PR described as "in review" that is actually CHANGES_REQUESTED or already
@@ -66,6 +85,13 @@ Order by what the reader acts on, not chronologically.
    description, or milestone titles contradicting the update just posted. Say so and
    offer to fix it; do not fix it unasked.
 
+## Health
+
+Every tracker gets the same three-way call: **on track**, **at risk**, **off track**.
+Carry the previous value forward unless something actually changed, and say in a
+bullet why it changed. The tracker reference maps it to the tracker's own field, or
+says where to state it when the tracker has none.
+
 ## Issues
 
 Same laconicism, different shape.
@@ -81,23 +107,9 @@ Same laconicism, different shape.
 - **Size**: state it in prose ("not a small change: spans X, Y, Z"). Do not set an
   estimate unless that team demonstrably uses estimates — check a few existing
   issues first; many teams leave them empty.
-- Set `priority` and `project`; leave assignee and status alone unless told.
-
-## Linear MCP mechanics
-
-Load with `ToolSearch`: `select:mcp__claude_ai_Linear__get_project,mcp__claude_ai_Linear__get_status_updates,mcp__claude_ai_Linear__save_status_update,mcp__claude_ai_Linear__save_issue,mcp__claude_ai_Linear__list_issues`
-(the claude.ai Linear connector's names; a locally configured Linear MCP server
-exposes the same tools under its own prefix).
-
-- `save_status_update` with **no `id`** creates a new update; passing `id` edits that
-  one. A pasted `#project-update-<id>` URL usually means "the project this update is
-  on", not "edit this update" — confirm which.
-- `health`: `onTrack` | `atRisk` | `offTrack`. Carry the previous value forward
-  unless something actually changed, and say in a bullet why it changed.
-- `save_issue` requires `team` + `title` on create; `project` accepts the slug from
-  the URL.
-- Markdown fields take **literal newlines**, not `\n`. Mentions are `@displayName`.
-- Project lookup accepts the full URL slug (`sso-rollout-…-3b2c1b6f77d3`).
+- Set priority and project (or epic, or milestone) when the tracker has them; leave
+  assignee and status alone unless told.
+- Before creating, search for an existing issue on the same thing.
 
 ## Worked example
 

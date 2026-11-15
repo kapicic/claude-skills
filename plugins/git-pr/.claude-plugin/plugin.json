@@ -1,9 +1,17 @@
 {
   "name": "git-pr",
-  "version": "0.1.0",
-  "description": "Rebase onto or merge in a PR's base branch with intent-preserving conflict resolution, and triage CodeRabbit review threads.",
+  "version": "0.2.0",
+  "description": "Rebase onto or merge in a PR's base branch with intent-preserving conflict resolution, and triage review-bot threads (CodeRabbit, Copilot, Greptile and others).",
   "author": { "name": "Stevan Kapicic" },
   "repository": "https://github.com/kapicic/claude-skills",
   "license": "MIT",
-  "keywords": ["git", "rebase", "merge", "coderabbit", "pull-request"]
+  "keywords": ["git", "rebase", "merge", "code-review", "review-bots", "pull-request"],
+  "userConfig": {
+    "review_bots": {
+      "type": "string",
+      "title": "Review bots",
+      "description": "GitHub logins whose review comments /check-bots triages, comma-separated, e.g. coderabbitai[bot],copilot-pull-request-reviewer[bot]. auto = every commenter GitHub marks as a bot.",
+      "default": "auto"
+    }
+  }
 }

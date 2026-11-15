@@ -1,25 +1,33 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "kapicic",
-  "description": "Stevan Kapicic's Claude Code skills: PR review, rebasing, cloud PR sessions, Linear updates, and rewriting AI-sounding text.",
-  "owner": { "name": "Stevan Kapicic" },
+  "description": "Stevan Kapicic's Claude Code skills: PR review, rebasing, review-bot triage, cloud PR sessions, tracker updates, and rewriting AI-sounding text.",
+  "owner": {
+    "name": "Stevan Kapicic"
+  },
   "plugins": [
     {
       "name": "pr-review",
-      "source": { "source": "github", "repo": "kapicic/pr-review" },
+      "source": {
+        "source": "github",
+        "repo": "kapicic/pr-review"
+      },
       "description": "Deep, stateful GitHub PR review: full or incremental, with routed review lenses and one consolidated review comment.",
       "category": "development"
     },
     {
       "name": "unslop",
-      "source": { "source": "github", "repo": "kapicic/unslop" },
+      "source": {
+        "source": "github",
+        "repo": "kapicic/unslop"
+      },
       "description": "Rewrite AI-sounding text so it is laconic and reads like you wrote it, without losing a fact.",
       "category": "productivity"
     },
     {
       "name": "git-pr",
       "source": "./plugins/git-pr",
-      "description": "Rebase onto or merge in a PR's base branch with intent-preserving conflict resolution, and triage CodeRabbit review threads.",
+      "description": "Rebase onto or merge in a PR's base branch with intent-preserving conflict resolution, and triage review-bot threads (CodeRabbit, Copilot, Greptile and others).",
       "category": "development"
     },
     {
@@ -29,9 +37,9 @@
       "category": "development"
     },
     {
-      "name": "linear-updates",
-      "source": "./plugins/linear-updates",
-      "description": "Laconic, goal-oriented Linear project updates, issues and comments, drafted for your approval before posting.",
+      "name": "tracker-updates",
+      "source": "./plugins/tracker-updates",
+      "description": "Laconic, goal-oriented project updates, issues and comments for Linear, Jira or GitHub Issues/Projects, drafted for your approval before posting.",
       "category": "productivity"
     }
   ]
