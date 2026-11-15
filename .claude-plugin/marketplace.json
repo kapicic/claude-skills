@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "kapicic",
-  "description": "Stevan Kapicic's Claude Code skills: PR review, rebasing, review-bot triage, cloud PR sessions, tracker updates, and rewriting AI-sounding text.",
+  "description": "Stevan Kapicic's Claude Code skills: a ticket-to-PR pipeline, PR review, rebasing, review-bot triage, cloud PR sessions, tracker updates, and rewriting AI-sounding text.",
   "owner": {
     "name": "Stevan Kapicic"
   },
@@ -41,6 +41,12 @@
       "source": "./plugins/tracker-updates",
       "description": "Laconic, goal-oriented project updates, issues and comments for Linear, Jira or GitHub Issues/Projects, drafted for your approval before posting.",
       "category": "productivity"
+    },
+    {
+      "name": "ship",
+      "source": "./plugins/ship",
+      "description": "Take a change from ticket to review-ready PR: explore, ask, scope, blast-radius map, plan, build, self-hunt and verify. ship-it adds the ticket, a fresh-context review, live tests and a cloud PR watcher.",
+      "category": "development"
     }
   ]
 }

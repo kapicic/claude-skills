@@ -1,0 +1,9 @@
+{
+  "name": "ship",
+  "version": "0.1.0",
+  "description": "Take a change from ticket to review-ready PR: explore, ask, scope, blast-radius map, plan, build, self-hunt and verify. ship-it adds the ticket, a fresh-context review, live tests and a cloud PR watcher.",
+  "author": { "name": "Stevan Kapicic" },
+  "repository": "https://github.com/kapicic/claude-skills",
+  "license": "MIT",
+  "keywords": ["workflow", "pull-request", "planning", "code-review", "blast-radius"]
+}

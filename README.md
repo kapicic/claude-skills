@@ -1,6 +1,6 @@
 # kapicic skills
 
-Claude Code plugins I use every day: a deep stateful PR reviewer, conflict-aware rebasing, review-bot triage, cloud PR sessions, tracker updates, and rewriting AI-sounding text.
+Claude Code plugins I use every day: a ticket-to-PR pipeline, a deep stateful PR reviewer, conflict-aware rebasing, review-bot triage, cloud PR sessions, tracker updates, and rewriting AI-sounding text.
 
 ## Install
 
@@ -15,6 +15,7 @@ Then run `/reload-plugins` or restart Claude Code. Update later with `/plugin ma
 
 | Plugin | Skills | What it does |
 | --- | --- | --- |
+| [`ship`](plugins/ship) | `ship`, `ship-it` | `ship` takes a change from request to PR in one review round: explore, ask, scope, map the blast radius, plan, build, hunt its own diff against 17 real-bug patterns, verify. `ship-it` wraps it with a tracker ticket, a fresh-context review of the draft PR, live tests and a cloud watcher for CI and review comments. |
 | [`pr-review`](https://github.com/kapicic/pr-review) | `pr-review` | Full or incremental review of a GitHub PR. It remembers earlier rounds, routes the diff to focused review lenses, and posts one consolidated review after you triage the findings. |
 | [`unslop`](https://github.com/kapicic/unslop) | `unslop` | Rewrites AI-padded text so it is short and sounds like you, without dropping a fact. |
 | [`git-pr`](plugins/git-pr) | `rebase-on-base`, `merge-in-base`, `check-bots` | Rebase onto, or merge in, your PR's base branch, resolving conflicts by intent. Triage review-bot threads (CodeRabbit, Copilot, Greptile, …): recommend, wait for your go, fix, reply and resolve. |
@@ -33,8 +34,19 @@ Plugins that depend on your tools ask which ones when you enable them. Every opt
 | `git-pr` | `review_bots` | `auto`, or comma-separated logins such as `coderabbitai[bot]` | Every commenter GitHub marks as a bot |
 | `pr-review` | `stack_tool` | `auto`, `gh-stack`, `graphite`, `git` | Detected per repo: `gh stack`, then Graphite, then plain git |
 
+### Repo overlay for `ship`
+
+`ship` and `ship-it` read the repo's own `CLAUDE.md` / `AGENTS.md` for its base branch, check commands and rules. What those files don't say — your team's labels, the traps you've already hit, extra test environments — goes in a private overlay, one per repo:
+
+```
+~/.claude/ship/<owner>-<repo>.md
+```
+
+Its `##` sections are named after the phases they extend: `Base`, `Explore`, `Scope`, `Map`, `Hunt`, `Build`, `Verify`, `PR`, `Ticket`, `Test plan`, `Watch` (pasted into the cloud watcher's prompt) and `Watch locally`. Each adds to the skill's generic text and wins where they disagree. No overlay, no problem: the skills run on the repo's own files alone.
+
 ## Requirements
 
+- `ship` needs `gh`. `ship-it` also needs the `pr-review` plugin for its self-review stage; `tracker-updates` (the ticket) and `cloud-pr` (the PR watcher) are optional, and without them it falls back to `gh issue` and a local watcher.
 - `git-pr` and `cloud-pr` use the [GitHub CLI](https://cli.github.com) (`gh`), logged in.
 - `cloud-pr` also needs a `claude` CLI logged in to claude.ai with cloud sessions enabled. The first run in a repo asks you to accept folder trust once. It runs sessions in the first cloud environment in its list, not the one picked in the web app, so pin yours with `/remote-env` or `remote.defaultEnvironmentId` in `~/.claude/settings.json`. `pr-review-cloud` also needs pr-review's claude.ai edition uploaded to claude.ai.
 - `tracker-updates` uses the Linear or Atlassian (Jira) connector or MCP server, or `gh` for GitHub Issues/Projects. GitHub project status updates need the `project` token scope: `gh auth refresh -s project`.
